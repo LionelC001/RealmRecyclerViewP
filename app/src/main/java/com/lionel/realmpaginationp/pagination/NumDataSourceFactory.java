@@ -1,7 +1,5 @@
 package com.lionel.realmpaginationp.pagination;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.paging.DataSource;
@@ -16,7 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class NumDataSourceFactory extends DataSource.Factory<Integer, NumModel> {
-    private static final int PAGE_SIZE = 100;
+    private static final int PAGE_SIZE = 10;
+    private static NumDataSource dataSource;
 
 
     public static LiveData<PagedList<NumModel>> getLivePagedList() {
@@ -27,7 +26,8 @@ public class NumDataSourceFactory extends DataSource.Factory<Integer, NumModel> 
     @NonNull
     @Override
     public DataSource<Integer, NumModel> create() {
-        return new NumDataSource();
+        dataSource = new NumDataSource();
+        return dataSource;
     }
 
     private class NumDataSource extends PageKeyedDataSource<Integer, NumModel> {
@@ -35,16 +35,12 @@ public class NumDataSourceFactory extends DataSource.Factory<Integer, NumModel> 
 
         @Override
         public void loadInitial(@NonNull LoadInitialParams<Integer> params, @NonNull LoadInitialCallback<Integer, NumModel> callback) {
-            Log.d("<>", "loadInitial: " + Thread.currentThread().getName());
-
             List<NumModel> data = RealmHelper.getData(initPosition, 0, -1, PAGE_SIZE);  // get last 100 data
             callback.onResult(data, -1, 0);
         }
 
         @Override
         public void loadBefore(@NonNull LoadParams<Integer> params, @NonNull LoadCallback<Integer, NumModel> callback) {
-            Log.d("<>", "loadBefore: " + Thread.currentThread().getName());
-
             int page = params.key;
             List<NumModel> data = RealmHelper.getData(initPosition, page, page - 1, PAGE_SIZE);
 
@@ -54,8 +50,6 @@ public class NumDataSourceFactory extends DataSource.Factory<Integer, NumModel> 
 
         @Override
         public void loadAfter(@NonNull LoadParams<Integer> params, @NonNull LoadCallback<Integer, NumModel> callback) {
-            Log.d("<>", "loadAfter: " + Thread.currentThread().getName());
-
             int page = params.key;
             List<NumModel> data = RealmHelper.getData(initPosition, page, page + 1, PAGE_SIZE);
 
@@ -65,27 +59,31 @@ public class NumDataSourceFactory extends DataSource.Factory<Integer, NumModel> 
     }
 
     private static class NumBoundaryCallback extends PagedList.BoundaryCallback<NumModel> {
+
         @Override
         public void onItemAtEndLoaded(@NonNull NumModel itemAtEnd) {
             super.onItemAtEndLoaded(itemAtEnd);
 
             // simulate call api
             new Thread(() -> {
+
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(2000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
 
                 int nowEndNum = itemAtEnd.getNum();
                 List<NumModel> data = new ArrayList<>();
-                for (int i = nowEndNum + 1; i < nowEndNum + 1 + 100; i++) {
+                for (int i = nowEndNum + 1; i < nowEndNum + 1 + 10; i++) {
                     NumModel model = new NumModel();
                     model.setId(i);
                     model.setNum(i);
                     data.add(model);
                 }
                 RealmHelper.insertData(data);
+//                callback.onItemAtEndLoaded();
+                dataSource.invalidate();
             }).start();
 
         }

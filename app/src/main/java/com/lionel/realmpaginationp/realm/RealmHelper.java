@@ -10,6 +10,7 @@ import io.realm.RealmResults;
 public class RealmHelper {
 
     private static RealmConfiguration sConfig;
+    private static int dataCount;
 
     private static RealmConfiguration getRealmConfig() {
         if (sConfig == null) {
@@ -36,12 +37,12 @@ public class RealmHelper {
                 realm.insertOrUpdate(realmList);
             }
         });
+        dataCount = (int) realm.where(NumModel.class).count();
         realm.close();
     }
 
     public static int getDataCount() {
-        Realm realm = Realm.getInstance(getRealmConfig());
-        return realm.where(NumModel.class).findAll().size();
+        return dataCount;
     }
 
     public static List<NumModel> getData(int initPosition, int fromPage, int toPage, int pageSize) {
@@ -57,11 +58,11 @@ public class RealmHelper {
             from = initPosition + fromPage * pageSize;      //1000 +  0*100
             to = initPosition + toPage * pageSize;          //1000 +  1*100
 
-            int nowMaxCount = getDataCount();
-            if (to > nowMaxCount) to = nowMaxCount;
+            if (to > dataCount) to = dataCount;
         }
 
         List<NumModel> listResult = realm.copyFromRealm(realmResult.subList(from, to));
+        realm.close();
         return listResult;
     }
 
@@ -72,6 +73,6 @@ public class RealmHelper {
 
     public static boolean checkIsNextPage(int initPosition, int toPage, int pageSize) {
         int toPosition = initPosition + toPage * pageSize;
-        return getDataCount() > toPosition;
+        return dataCount > toPosition;
     }
 }

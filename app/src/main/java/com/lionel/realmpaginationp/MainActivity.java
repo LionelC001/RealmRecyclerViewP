@@ -5,12 +5,12 @@ import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.lionel.realmpaginationp.databinding.ActivityMainBinding;
 import com.lionel.realmpaginationp.pagination.NumAdapter;
-import com.lionel.realmpaginationp.pagination.NumDataSourceFactory;
 import com.lionel.realmpaginationp.realm.NumModel;
 import com.lionel.realmpaginationp.realm.RealmHelper;
 
@@ -21,15 +21,19 @@ public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding dataBinding;
     private Context context;
+    private NumViewModel viewModel;
+    private NumAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         dataBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         context = this;
+        viewModel = new ViewModelProvider(this).get(NumViewModel.class);
 
         insertData();
         initRecyclerView();
+        initObserve();
     }
 
     private void insertData() {
@@ -45,12 +49,16 @@ public class MainActivity extends AppCompatActivity {
 
     private void initRecyclerView() {
         RecyclerView recyclerView = dataBinding.recyclerView;
-        LinearLayoutManager linearLayoutManager =  new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false);
         linearLayoutManager.setStackFromEnd(true);
         recyclerView.setLayoutManager(linearLayoutManager);
 
-        final NumAdapter adapter = new NumAdapter(this);
+        adapter = new NumAdapter(this);
         recyclerView.setAdapter(adapter);
-        NumDataSourceFactory.getLivePagedList().observe(this, adapter::submitList);
+    }
+
+    private void initObserve() {
+        viewModel.getLivePagedListNumModel().observe(this, adapter::submitList);
+        viewModel.initLiveNumModel();
     }
 }

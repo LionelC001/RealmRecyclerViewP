@@ -45,7 +45,7 @@ public class RealmHelper {
         return dataCount;
     }
 
-    public static List<NumModel> getData(int initPosition, int fromPage, int toPage, int pageSize) {
+    public static RealmResults<NumModel> getData(int initPosition, int fromPage, int toPage, int pageSize) {
         Realm realm = Realm.getInstance(getRealmConfig());
         RealmResults<NumModel> realmResult = realm.where(NumModel.class).findAll();
 
@@ -61,9 +61,18 @@ public class RealmHelper {
             if (to > dataCount) to = dataCount;
         }
 
-        List<NumModel> listResult = realm.copyFromRealm(realmResult.subList(from, to));
+//        List<NumModel> listResult = realm.copyFromRealm(realmResult.subList(from, to));
+//        realm.close();
+        return realmResult;
+    }
+
+    public static NumModel getLastData() {
+        Realm realm = Realm.getInstance(getRealmConfig());
+        RealmResults<NumModel> realmResult = realm.where(NumModel.class).findAll();
+
+        NumModel lastNumModel = realm.copyFromRealm(realmResult.last());
         realm.close();
-        return listResult;
+        return lastNumModel;
     }
 
     public static boolean checkIsPreviousPage(int initPosition, int toPage, int pageSize) {

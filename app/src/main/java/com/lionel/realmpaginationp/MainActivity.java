@@ -13,16 +13,19 @@ import com.lionel.realmpaginationp.databinding.ActivityMainBinding;
 import com.lionel.realmpaginationp.pagination.NumAdapter;
 import com.lionel.realmpaginationp.realm.NumModel;
 import com.lionel.realmpaginationp.realm.RealmHelper;
+import com.lionel.realmpaginationp.realm.RealmRecyclerViewAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import io.realm.RealmResults;
 
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding dataBinding;
     private Context context;
     private NumViewModel viewModel;
-    private NumAdapter adapter;
+    private RealmRecyclerViewAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,7 +36,8 @@ public class MainActivity extends AppCompatActivity {
 
         insertData();
         initRecyclerView();
-        initObserve();
+//        initObserve();
+        initSimulateCallApi();
     }
 
     private void insertData() {
@@ -53,12 +57,19 @@ public class MainActivity extends AppCompatActivity {
         linearLayoutManager.setStackFromEnd(true);
         recyclerView.setLayoutManager(linearLayoutManager);
 
-        adapter = new NumAdapter(this);
+//        adapter = new NumAdapter(this);
+
+        RealmResults<NumModel> data = RealmHelper.getData(RealmHelper.getDataCount(), 0, -1, 100);
+        adapter = new RealmRecyclerViewAdapter(this,data);
         recyclerView.setAdapter(adapter);
     }
 
-    private void initObserve() {
-        viewModel.getLivePagedListNumModel().observe(this, adapter::submitList);
-        viewModel.initLiveNumModel();
+//    private void initObserve() {
+//        viewModel.getLivePagedListNumModel().observe(this, adapter::submitList);
+//        viewModel.initLiveNumModel();
+//    }
+
+    private void initSimulateCallApi() {
+            viewModel.onFakeCallApi();
     }
 }

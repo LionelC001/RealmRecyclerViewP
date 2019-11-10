@@ -45,7 +45,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void initRecyclerView() {
         RecyclerView recyclerView = dataBinding.recyclerView;
-        recyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
+        LinearLayoutManager linearLayoutManager =  new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false);
+        linearLayoutManager.setStackFromEnd(true);
+        recyclerView.setLayoutManager(linearLayoutManager);
+
         final NumAdapter adapter = new NumAdapter(this);
         recyclerView.setAdapter(adapter);
         NumDataSourceFactory.getLivePagedList().observe(this, adapter::submitList);

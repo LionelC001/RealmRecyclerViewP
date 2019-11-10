@@ -1,7 +1,5 @@
 package com.lionel.realmpaginationp.realm;
 
-import android.util.Log;
-
 import java.util.List;
 
 import io.realm.Realm;
@@ -47,8 +45,6 @@ public class RealmHelper {
     }
 
     public static List<NumModel> getData(int initPosition, int fromPage, int toPage, int pageSize) {
-        Log.d("<>", "realm thread: " + Thread.currentThread().getName());
-
         Realm realm = Realm.getInstance(getRealmConfig());
         RealmResults<NumModel> realmResult = realm.where(NumModel.class).findAll();
 

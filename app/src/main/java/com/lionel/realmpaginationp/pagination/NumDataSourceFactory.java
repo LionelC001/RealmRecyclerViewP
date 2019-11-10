@@ -69,7 +69,7 @@ public class NumDataSourceFactory extends DataSource.Factory<Integer, NumModel> 
         public void onItemAtEndLoaded(@NonNull NumModel itemAtEnd) {
             super.onItemAtEndLoaded(itemAtEnd);
 
-
+            // simulate call api
             new Thread(() -> {
                 try {
                     Thread.sleep(1000);

@@ -65,7 +65,7 @@ public class RealmHelper {
             if (to > nowMaxCount) to = nowMaxCount;
         }
 
-        List<NumModel> listResult = realmResult.subList(from, to);
+        List<NumModel> listResult = realm.copyFromRealm(realmResult.subList(from, to));
         return listResult;
     }
 

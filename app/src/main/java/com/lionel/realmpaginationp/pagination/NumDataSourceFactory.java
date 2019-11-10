@@ -12,15 +12,16 @@ import androidx.paging.PagedList;
 import com.lionel.realmpaginationp.realm.NumModel;
 import com.lionel.realmpaginationp.realm.RealmHelper;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class NumDataSourceFactory extends DataSource.Factory<Integer, NumModel> {
     private static final int PAGE_SIZE = 100;
 
 
-    public static LiveData<PagedList<NumModel>> getLivePagedList(){
+    public static LiveData<PagedList<NumModel>> getLivePagedList() {
         PagedList.Config pagedListConfig = new PagedList.Config.Builder().setPageSize(PAGE_SIZE).build();
-        return new LivePagedListBuilder(new NumDataSourceFactory(), pagedListConfig).build();
+        return new LivePagedListBuilder(new NumDataSourceFactory(), pagedListConfig).setBoundaryCallback(new NumBoundaryCallback()).build();
     }
 
     @NonNull
@@ -28,7 +29,6 @@ public class NumDataSourceFactory extends DataSource.Factory<Integer, NumModel> 
     public DataSource<Integer, NumModel> create() {
         return new NumDataSource();
     }
-
 
     private class NumDataSource extends PageKeyedDataSource<Integer, NumModel> {
         private int initPosition = RealmHelper.getDataCount();
@@ -61,6 +61,33 @@ public class NumDataSourceFactory extends DataSource.Factory<Integer, NumModel> 
 
             boolean isThereNext = RealmHelper.checkIsNextPage(initPosition, page + 2, PAGE_SIZE);
             callback.onResult(data, isThereNext ? page + 1 : null);
+        }
+    }
+
+    private static class NumBoundaryCallback extends PagedList.BoundaryCallback<NumModel> {
+        @Override
+        public void onItemAtEndLoaded(@NonNull NumModel itemAtEnd) {
+            super.onItemAtEndLoaded(itemAtEnd);
+
+
+            new Thread(() -> {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                int nowEndNum = itemAtEnd.getNum();
+                List<NumModel> data = new ArrayList<>();
+                for (int i = nowEndNum + 1; i < nowEndNum + 1 + 100; i++) {
+                    NumModel model = new NumModel();
+                    model.setId(i);
+                    model.setNum(i);
+                    data.add(model);
+                }
+                RealmHelper.insertData(data);
+            }).start();
+
         }
     }
 }

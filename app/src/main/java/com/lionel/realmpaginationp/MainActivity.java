@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void insertData() {
         List<NumModel> data = new ArrayList<>();
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 500; i++) {
             NumModel model = new NumModel();
             model.setId(i);
             model.setNum(i);
